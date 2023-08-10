@@ -32,3 +32,5 @@ Generally, you want to start a few days before the posting date of the first bat
 You'll get much better results if you use a narrow (2-4 days) date range. 
 Larger ranges will still work (and you may have to for some batches), but you will have to do more manual validation
 
+You will need to edit the "folder" variable if you're not Paul and not running on the desktop
+You shouldn't need to touch anything else
