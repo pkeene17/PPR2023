@@ -57,9 +57,9 @@ def copyAddresses(aciFname,qryFname):
 def main():
     #take input from user for filenames
     print("enter custom aci report filename: ")
-    aciFname = input()
+    aciFname = str(input())
     print("enter query filename: ")
-    qryFname = input()
+    qryFname = str(input())
     copyAddress(aciFname,qryFname)
 
 #driver

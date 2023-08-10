@@ -40,14 +40,21 @@ def convert_loop(accType):
 def time_convertRF(times):
     for i in range(len(times)):
         tstmp = dt.strptime(times[i][1:11],'%m/%d/%Y')
-        times[i] = tstmp.strftime('%Y%m%d')
+        times[i] = int(tstmp.strftime('%Y%m%d'))
     return times
 
 #helper to convert dates-writeFile
 def time_convertWF(times):
     for i in range(len(times)):
         tstmp = dt.strptime(times[i],'%m/%d/%Y')
-        times[i] = tstmp.strftime('%Y%m%d')
+        times[i] = int(tstmp.strftime('%Y%m%d'))
+    return times
+
+#covert times back to string
+def time_to_str(times):
+    for i in range(len(times)):
+        tmp = dt.strptime(str(times[i]),'%Y%m%d')
+        times[i] = tmp.strftime("%m/%d/%Y")
     return times
 
 def fill_batch(aciFname,qryFname):
@@ -63,14 +70,15 @@ def fill_batch(aciFname,qryFname):
     timesRF = time_convertRF(timesRF)
     readFile[' Transaction Date & Time'] = timesRF
     timesWF = writeFile['Posting Date'].copy()
-    timesRF = time_convertWF(timesWF)
+    timesWF = time_convertWF(timesWF)
     writeFile['Posting Date'] = timesWF
 
+    ###edited to just go 5 days back from the batch settlement date
     #get date range from the aci report
     #aci reports are organized by date
-    dateStart = readFile[' Transaction Date & Time'][0]
-    dateEnd = readFile[' Transaction Date & Time'][np.shape(readFile)[0]-1]
-    dateIndex = np.logical_and(writeFile['Posting Date']<=dateEnd,writeFile['Posting Date']>=dateStart)
+    #dateStart = readFile[' Transaction Date & Time'][0]
+    #dateEnd = readFile[' Transaction Date & Time'][np.shape(readFile)[0]-1]
+    #dateIndex = np.logical_and(writeFile['Posting Date']<=dateEnd,writeFile['Posting Date']>=dateStart)
 
     #get list of batch numbers
     batchList = np.unique(readFile[' Batch #'])
@@ -93,6 +101,12 @@ def fill_batch(aciFname,qryFname):
         batchRows = readFile[readFile[' Batch #']==ibatch]
         #get the date of this batch
         batchDate = np.unique(batchRows[' Settlement Date'])
+        #only look at postings within 6 days of the transaction
+        #(transaction date is usually 1 day before settlement)
+        dateStart = dt.strptime(batchDate[0][1:11],"%m/%d/%Y")
+        dateStart = int(dateStart.strftime('%Y%m%d'))
+        dateEnd = dateStart+5
+        dateIndex = np.logical_and(writeFile['Posting Date']<=dateEnd,writeFile['Posting Date']>=dateStart)
         #throw an error if more than one date is associated with a batch
         if len(batchDate) != 1:
             print(batchDate)
@@ -121,6 +135,11 @@ def fill_batch(aciFname,qryFname):
                 writeFile['Batch Number'] = tmp
                 writeFile['Settlement Date'] = tmpdate
 
+    #convert time back to a string
+    timesSTR = writeFile['Posting Date'].copy()
+    timesSTR = time_to_str(timesSTR)
+    writeFile['Posting Date'] = timesSTR
+    #write to csv
     writeFile.to_csv(folder+"Online Payment Logs_batched.csv")
         
 def main():
