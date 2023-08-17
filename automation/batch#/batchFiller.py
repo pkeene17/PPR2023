@@ -46,7 +46,7 @@ def time_convertRF(times):
 #helper to convert dates-writeFile
 def time_convertWF(times):
     for i in range(len(times)):
-        tstmp = dt.strptime(times[i],'%m/%d/%Y')
+        tstmp = dt.strptime(str(times[i]),'%m/%d/%Y')
         times[i] = int(tstmp.strftime('%Y%m%d'))
     return times
 
@@ -88,9 +88,9 @@ def fill_batch(aciFname,qryFname):
     readFile[' Account Type'] = accType
 
     #cast some columns as floats
-    writeMoney = writeFile[' Amount'].copy()
+    writeMoney = writeFile[' Amount '].copy()
     writeMoney = money_convert(writeMoney)
-    writeFile[' Amount'] = writeMoney
+    writeFile[' Amount '] = writeMoney
     readMoney = readFile[' Base Payment Amount'].copy()
     readMoney = money_convert(readMoney)
     readFile[' Base Payment Amount'] = readMoney
@@ -120,19 +120,21 @@ def fill_batch(aciFname,qryFname):
             #sum payments from this merchant
             paidAmt = np.sum(batchRows[' Base Payment Amount'][ind])
             #search for row with merchant ID and the exact amount and a blank batch field in write file
-            indextmp1 = np.logical_and(writeFile[' Customer Reference']==imerch,writeFile[' Amount']==paidAmt)
+            indextmp1 = np.logical_and(writeFile['Customer Reference']==imerch,writeFile[' Amount ']==paidAmt)
             #search within date range
             indextmp2 = np.logical_and(dateIndex,indextmp1)
-            index = np.logical_and(indextmp2,writeFile['Batch Number'].isna())        
+            #index = np.logical_and(indextmp2,writeFile['Batch Number'].isna())
+            index = np.logical_and(indextmp2,writeFile['TestBatch'].isna())
             #only write data if one match is found; otherwise leave blank
             if np.sum(index)==1:
                 #gotta break this into steps or pandas freaks out
                 #which is an objectively funny image if you think about it
-                tmp = writeFile['Batch Number'].copy()
+                #tmp = writeFile['Batch Number'].copy()
+                tmp = writeFile['TestBatch'].copy()
                 tmp[index] = ibatch
                 tmpdate = writeFile['Settlement Date'].copy()
                 tmpdate[index] = batchDate
-                writeFile['Batch Number'] = tmp
+                writeFile['TestBatch'] = tmp
                 writeFile['Settlement Date'] = tmpdate
 
     #convert time back to a string

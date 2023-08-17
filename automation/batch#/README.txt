@@ -27,10 +27,18 @@ Tab: Output Columns
 You can add more but these are the essentials
 
 When you run it use Transaction time as the date filter, then choose the start and end dates you want.
-Generally, you want to start a few days before the posting date of the first batch youre looking for
-
-You'll get much better results if you use a narrow (2-4 days) date range. 
-Larger ranges will still work (and you may have to for some batches), but you will have to do more manual validation
+Generally, you want to start at least 5 days before the posting date of the first batch youre looking for
 
 You will need to edit the "folder" variable if you're not Paul and not running on the desktop
 You shouldn't need to touch anything else
+
+Known Bugs:
+
+batchFiller.py", line 42, in time_convertRF
+    tstmp = dt.strptime(times[i][1:11],'%m/%d/%Y')
+TypeError: 'float' object is not subscriptable
+
+Fix: the custom report sometimes has blank rows in it. The City pays for this service by the way. 
+Just go through and delete any blank rows for now.
+WIP: add a catch somewhere to remove blank lines
+
