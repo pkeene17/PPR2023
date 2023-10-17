@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
 
-def copyAddresses(aciFname,qryFname):
+def copyAddresses(aciFname,qryFname,folder):
     #set paths
-    folder = "C:/Users/KEENEPLA/Downloads/"
-    fileToRead = folder+aciFname
-    fileToWrite = folder+qryFname
+    fileToRead = folder+'/'+aciFname
+    fileToWrite = folder+'/'+qryFname
 
     #load files
     writeFile = pd.read_csv(fileToWrite)
@@ -60,7 +59,9 @@ def main():
     aciFname = str(input())
     print("enter query filename: ")
     qryFname = str(input())
-    copyAddress(aciFname,qryFname)
+    print("enter path to data files (on PC replace \ with /): ")
+    folder = str(input())
+    copyAddress(aciFname,qryFname,folder)
 
 #driver
 main()

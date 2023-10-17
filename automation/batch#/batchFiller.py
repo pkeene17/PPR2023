@@ -13,6 +13,10 @@ def money_convert(vect):
         tmp = tmp.replace(' ','')
         tmp = tmp.replace('(','')
         tmp = tmp.replace(')','')
+        tmp = tmp.replace(' ','')
+        tmp = tmp.replace('U','')
+        tmp = tmp.replace('S','')
+        tmp = tmp.replace('D','')
         vect[i] = float(tmp)
     return vect
 
@@ -39,7 +43,7 @@ def convert_loop(accType):
 #helper to convert dates-readFile
 def time_convertRF(times):
     for i in range(len(times)):
-        tstmp = dt.strptime(times[i][1:11],'%m/%d/%Y')
+        tstmp = dt.strptime(str(times[i])[1:11],'%m/%d/%Y')
         times[i] = int(tstmp.strftime('%Y%m%d'))
     return times
 
@@ -57,13 +61,12 @@ def time_to_str(times):
         times[i] = tmp.strftime("%m/%d/%Y")
     return times
 
-def fill_batch(aciFname,qryFname):
+def fill_batch(aciFname,qryFname,folder):
     #load data
-    folder = "C:/Users/KEENEPLA/Downloads/"
     readFname = aciFname
     writeFname = qryFname
-    readFile = pd.read_csv(folder+readFname)
-    writeFile = pd.read_csv(folder+writeFname)
+    readFile = pd.read_csv(folder+'/'+readFname)
+    writeFile = pd.read_csv(folder++'/'+writeFname)
 
     #convert dates to integers
     timesRF = readFile[' Transaction Date & Time'].copy()
@@ -123,18 +126,16 @@ def fill_batch(aciFname,qryFname):
             indextmp1 = np.logical_and(writeFile['Customer Reference']==imerch,writeFile[' Amount ']==paidAmt)
             #search within date range
             indextmp2 = np.logical_and(dateIndex,indextmp1)
-            #index = np.logical_and(indextmp2,writeFile['Batch Number'].isna())
-            index = np.logical_and(indextmp2,writeFile['TestBatch'].isna())
+            index = np.logical_and(indextmp2,writeFile['Batch Number'].isna())
             #only write data if one match is found; otherwise leave blank
             if np.sum(index)==1:
                 #gotta break this into steps or pandas freaks out
                 #which is an objectively funny image if you think about it
-                #tmp = writeFile['Batch Number'].copy()
-                tmp = writeFile['TestBatch'].copy()
+                tmp = writeFile['Batch Number'].copy()
                 tmp[index] = ibatch
                 tmpdate = writeFile['Settlement Date'].copy()
                 tmpdate[index] = batchDate
-                writeFile['TestBatch'] = tmp
+                writeFile['Batch Number'] = tmp
                 writeFile['Settlement Date'] = tmpdate
 
     #convert time back to a string
@@ -150,7 +151,9 @@ def main():
     aciFname = str(input())
     print("enter data to be filled's filename: ")
     qryFname = str(input())
-    fill_batch(aciFname,qryFname)
+    print("enter path to data files (on PC replace \ with /): ")
+    fpath = str(input())
+    fill_batch(aciFname,qryFname,fpath)
 
 #driver
 main()
